@@ -1,0 +1,4 @@
+beautifulsoup4==4.11.1
+pandas==1.4.2
+PyAutoGUI==0.9.53
+selenium==4.16.0
