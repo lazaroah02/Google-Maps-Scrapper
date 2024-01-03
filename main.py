@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.options import Options
 from get_mails_from_web import get_mails_from_web 
 
 filename = "data"
-link = "https://www.google.com/maps/search/boats+construction+companies+United+States/@40.7219,-110.0056348,4z?entry=ttu"
+link = "https://www.google.com/maps/search/boats+construction+companies+United+States"
 
 
 options = Options()
@@ -33,7 +33,7 @@ def Selenium_extractor():
         var = len(a)
         #scroll hasta el ultimo resultado de busqueda
         scroll_origin = ScrollOrigin.from_element(a[len(a)-1]) 
-        action.scroll_from_origin(scroll_origin, 0, 1000).perform()
+        action.scroll_from_origin(scroll_origin, 0, 1500).perform()
         time.sleep(5)
         #se guarda en la lista "a" todos los resultados de busqueda existentes antes del scroll y despues
         a = browser.find_elements(By.CLASS_NAME, "hfpxzc")
@@ -52,7 +52,7 @@ def Selenium_extractor():
             #recupero el elemento i de la lista de resultados como un objeto de scroll
             scroll_origin = ScrollOrigin.from_element(a[i]) 
             #hago scroll hasta el elemento 
-            action.scroll_from_origin(scroll_origin, 0, 100).perform()
+            action.scroll_from_origin(scroll_origin, 0, 1000).perform()
             #muevo el mouse hasta el centro del elemento
             action.move_to_element(a[i]).perform()
             #hago click en el elemento

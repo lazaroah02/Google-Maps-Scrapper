@@ -42,7 +42,7 @@ def get_mails_from_web(url):
         links = []
         for tag in tags:
             link = tag.get("href")
-            if link.startswith("/") or get_domain_from_url(url) in link or ".html" in link:
+            if str(link).startswith("/") or get_domain_from_url(url) in link or ".html" in link:
                 links.append(link)
         
         # Reconstruir las rutas agregando el dominio al principio de cada ruta y guardarlas en una lista
@@ -50,7 +50,8 @@ def get_mails_from_web(url):
         for link in links:
             if "https://" in link:
                 urls.append(link)
-            urls.append(url + str(link))
+            else:
+                urls.append(url + str(link))
 
         # Eliminar las URLs duplicadas de la lista
         urls = list(dict.fromkeys(urls))
@@ -74,7 +75,7 @@ def get_mails_from_web(url):
                 # Buscar los textos que tengan el formato de un email y guardarlos en la lista
                 email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
                 # Buscamos un máximo de 10 resultados
-                elements = soup.find_all(["span", "div"], text=re.compile(email_pattern), limit=5) 
+                elements = soup.find_all(["span", "div", "a"], text=re.compile(email_pattern), limit=5) 
                 for element in elements:
                     emails.append(element.text)
                     
@@ -90,5 +91,5 @@ def get_mails_from_web(url):
     
     return emails
 
-url = "https://unclejcustomboats.com/"   
-print(get_mails_from_web(url)) 
+#url = "rred-duct.com"   
+#print(get_mails_from_web(url)) 
