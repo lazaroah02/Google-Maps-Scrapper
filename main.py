@@ -22,7 +22,6 @@ le = 0 #esta variable contara el # de intentos de obtener resultados para cada p
 results_limit = 100
 
 def Selenium_extractor():
-
     action = ActionChains(browser)
     #lista con los resultados de busqueda, los elementos con la clase "hfpxzc" son los links <a> que llevan al detalle de cada lugar
     a = browser.find_elements(By.CLASS_NAME, "hfpxzc") 
@@ -32,8 +31,12 @@ def Selenium_extractor():
     while len(a) < results_limit:
         var = len(a)
         #scroll hasta el ultimo resultado de busqueda
-        scroll_origin = ScrollOrigin.from_element(a[len(a)-1]) 
-        action.scroll_from_origin(scroll_origin, 0, 1500).perform()
+        browser.execute_script ('''
+                                document.querySelector('[role=\"feed\"]').scrollTo({
+                                    top:document.querySelector('[role=\"feed\"]').scrollHeight, 
+                                    left:0, 
+                                    behavior:'smooth'});
+                                ''')
         time.sleep(5)
         #se guarda en la lista "a" todos los resultados de busqueda existentes antes del scroll y despues
         a = browser.find_elements(By.CLASS_NAME, "hfpxzc")
