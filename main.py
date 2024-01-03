@@ -1,5 +1,4 @@
 from selenium import webdriver
-import pyautogui
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
@@ -10,11 +9,12 @@ from selenium.webdriver.chrome.options import Options
 from get_mails_from_web import get_mails_from_web 
 
 filename = "data"
+filepath = "D:/Projects/Mail_Scrapping/data/"
 link = "https://www.google.com/maps/search/boats+construction+companies+United+States"
 
 
 options = Options()
-options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+options.binary_location = "chrome-win64/chrome.exe"
 browser = webdriver.Chrome(options=options)
 record = []
 e = []
@@ -44,7 +44,7 @@ def Selenium_extractor():
         #numero de intentos de obtener resultados para cada paginacion
         if len(a) == var:
             le+=1
-            if le > 10:
+            if le > 5:
                 break
         else:
             le = 0
@@ -95,7 +95,7 @@ def Selenium_extractor():
                 print([name, phone, address, website, mails])
                 record.append((name,phone,address,website,mails))
                 df=pd.DataFrame(record,columns=['Name','Phone number','Address','Website', 'Emails'])  # writing data to the file
-                df.to_csv(filename + '.csv',index=False,encoding='utf-8')
+                df.to_csv(filepath+filename + '.csv',index=False,encoding='utf-8')
         except Exception as error:
             print(f"Error: {error}")
             continue

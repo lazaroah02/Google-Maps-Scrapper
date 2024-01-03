@@ -90,6 +90,4 @@ def get_mails_from_web(url):
     emails = list(dict.fromkeys(emails))
     
     return emails
-
-#url = "rred-duct.com"   
-#print(get_mails_from_web(url)) 
+ 
