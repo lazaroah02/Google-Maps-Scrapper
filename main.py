@@ -10,7 +10,7 @@ from get_mails_from_web import get_mails_from_web
 
 filename = "data"
 filepath = "D:/Projects/Mail_Scrapping/data/"
-link = "https://www.google.com/maps/search/boats+construction+companies+United+States"
+link = "https://www.google.com/maps/search/boat+and+yacht+construction,+repair,+and+assembly+companies+in+all+United+States/@33.2363272,-95.7450643,4z?entry=ttu"
 
 
 options = Options()
@@ -19,7 +19,7 @@ browser = webdriver.Chrome(options=options)
 record = []
 e = []
 le = 0 #esta variable contara el # de intentos de obtener resultados para cada pagination scroll que se haga
-results_limit = 100
+results_limit = 1000
 
 def Selenium_extractor():
     action = ActionChains(browser)

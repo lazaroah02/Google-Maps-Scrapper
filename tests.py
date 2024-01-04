@@ -3,7 +3,8 @@ import unittest
 from get_mails_from_web import get_mails_from_web
 
 results_expected = {
-    "https://rred-duct.com":['info@rred-duct.com','keylidesigner@gmail.com'],
+    "https://rred-duct.com":['info@rred-duct.com', 'keylidesigner@gmail.com'],
+    "https://capecodshipbuilding.com":['info@capecodshipbuilding.com', 'zephyr@capecodshipbuilding.com']
 }
 
 class TestGetMailsFromWeb(unittest.TestCase):
