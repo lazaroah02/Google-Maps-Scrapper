@@ -7,15 +7,10 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 from selenium.webdriver.chrome.options import Options
 from get_mails_from_web import get_mails_from_web 
-import signal
 
 options = Options()
 options.binary_location = "chrome-win64/chrome.exe"
 browser = webdriver.Chrome(options=options)
-
-def timeout_handler(signum, frame):
-    # Esta función se ejecuta cuando se alcanza el tiempo límite
-    raise TimeoutError # Lanza el error
 
 def Selenium_extractor():
     record = []
@@ -89,21 +84,8 @@ def Selenium_extractor():
                 except:
                     website="Not available"
                 
-                #ESTABLESCO UN TIEMPO LIMITE DE 5 MIN PARA BUSCAR LOS MAILS
-                # Establece el manejador de señales para el tiempo límite
-                signal.signal(signal.SIGALRM, timeout_handler)
-
-                # Establece el tiempo límite en segundos (5 minutos = 300 segundos)
-                signal.alarm(300)
-                
-                try:
-                    #busco los mails del sitio web
-                    mails = tuple(get_mails_from_web(website))
-                except:    
-                   print("La extraccion de mails tardo demasiado")
-                finally:
-                    # Desactiva el tiempo límite
-                    signal.alarm(0)   
+                #busco los mails del sitio web
+                mails = tuple(get_mails_from_web(website))  
                    
                 print([name, phone, address, website, mails])
                 record.append((name,phone,address,website,mails))
