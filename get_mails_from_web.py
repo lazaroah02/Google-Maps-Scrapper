@@ -28,7 +28,6 @@ def get_mails_from_route(url):
 
     # Crear un objeto BeautifulSoup con el contenido y el parser html
     soup = BeautifulSoup(content, "html.parser")
-
     # Buscar los enlaces con el atributo href que empiecen por mailto
     links = soup.find_all("a", href=re.compile("^mailto"))
     # Extraer los emails de los enlaces y guardarlos en la lista
@@ -49,13 +48,13 @@ def get_mails_from_route(url):
                     
 def rebuild_routes(links, web_url):
     # Reconstruir las rutas agregando el dominio al principio de cada ruta y guardarlas en una lista
-        urls = []
-        for link in links:
-            if "https://" in link:
-                urls.append(link)
-            else:
-                urls.append(web_url + str(link))
-        return urls        
+    urls = []
+    for link in links:
+        if "https://" in link:
+            urls.append(link)
+        else:
+            urls.append(web_url + str(link))
+    return urls        
                                   
 def get_mails_from_web(web_url):
     # Crear una lista vacía para guardar los emails
@@ -87,7 +86,7 @@ def get_mails_from_web(web_url):
                 continue
             #si existe una pagina de contacto voy directamente a esa    
             if "contact" in link:
-                emails.extend(get_mails_from_route(rebuild_routes(link, web_url)[0]))
+                emails.extend(get_mails_from_route(rebuild_routes([link], web_url)[0]))
                 no_more_mails_necesary = True
                 continue
             #si el link contiene algun archivo ej: .mp4 lo saltamos
