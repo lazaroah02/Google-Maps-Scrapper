@@ -2,8 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from numba import njit
-import time
-import threading
 
 files_extensions = [".css", ".js", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".mp4", ".mp3", ".pdf"]
 headers = {"User-Agent": "Mozilla/5.0"}
@@ -115,14 +113,11 @@ def get_mails_from_web(web_url):
                         emails.extend(get_mails_from_route(url)) 
                     except:
                         continue    
-    except TimeoutError:
-        print(f"Se ha alcanzado el tiempo limite para recopilar los mails de {web_url}")
     except Exception as e:
         print(f"Error al obtener las rutas de {web_url}: {e}")
         pass
     
     # Eliminar los emails duplicados de la lista
     emails = list(dict.fromkeys(emails))
+    
     return emails
-
-print(get_mails_from_web("rred-duct.com"))
