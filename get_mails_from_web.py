@@ -121,5 +121,3 @@ def get_mails_from_web(web_url):
     emails = list(dict.fromkeys(emails))
     
     return emails
-
-print(get_mails_from_web("rred-duct.com")) 

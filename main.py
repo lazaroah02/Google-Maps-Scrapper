@@ -7,21 +7,21 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 from selenium.webdriver.chrome.options import Options
 from get_mails_from_web import get_mails_from_web 
-
-filename = "data"
-filepath = "D:/Projects/Mail_Scrapping/data/"
-link = "https://www.google.com/maps/search/boat+and+yacht+construction,+repair,+and+assembly+companies+in+all+United+States/@33.2363272,-95.7450643,4z?entry=ttu"
-
+import signal
 
 options = Options()
 options.binary_location = "chrome-win64/chrome.exe"
 browser = webdriver.Chrome(options=options)
-record = []
-e = []
-le = 0 #esta variable contara el # de intentos de obtener resultados para cada pagination scroll que se haga
-results_limit = 1000
+
+def timeout_handler(signum, frame):
+    # Esta función se ejecuta cuando se alcanza el tiempo límite
+    raise TimeoutError # Lanza el error
 
 def Selenium_extractor():
+    record = []
+    e = []
+    le = 0 #esta variable contara el # de intentos de obtener resultados para cada pagination scroll que se haga
+    results_limit = 1000
     action = ActionChains(browser)
     #lista con los resultados de busqueda, los elementos con la clase "hfpxzc" son los links <a> que llevan al detalle de cada lugar
     a = browser.find_elements(By.CLASS_NAME, "hfpxzc") 
@@ -89,8 +89,21 @@ def Selenium_extractor():
                 except:
                     website="Not available"
                 
-                #busco los mails del sitio web
-                mails = tuple(get_mails_from_web(website))
+                #ESTABLESCO UN TIEMPO LIMITE DE 5 MIN PARA BUSCAR LOS MAILS
+                # Establece el manejador de señales para el tiempo límite
+                signal.signal(signal.SIGALRM, timeout_handler)
+
+                # Establece el tiempo límite en segundos (5 minutos = 300 segundos)
+                signal.alarm(300)
+                
+                try:
+                    #busco los mails del sitio web
+                    mails = tuple(get_mails_from_web(website))
+                except:    
+                   print("La extraccion de mails tardo demasiado")
+                finally:
+                    # Desactiva el tiempo límite
+                    signal.alarm(0)   
                    
                 print([name, phone, address, website, mails])
                 record.append((name,phone,address,website,mails))
@@ -101,10 +114,19 @@ def Selenium_extractor():
             continue
 
 
+us_states = [ "Minnesota", "Misisipi", "Misuri", "Montana", "Nebraska", "Nevada", "Nueva Jersey", 
+             "Nueva York", "Nuevo Hampshire", "Nuevo México", "Ohio", "Oklahoma", "Oregón", "Pensilvania", 
+             "Rhode Island", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Virginia Occidental", 
+             "Washington", "Wisconsin", "Wyoming"]
 
 
+filepath = "D:/Projects/Mail_Scrapping/data/boats"
+keywords = "boat+and+yacht+construction,+repair,+and+assembly+companies+in"
 
-browser.get(str(link))
-print("Chrome Browser Invoked")
-time.sleep(10)
-Selenium_extractor()
+for state in us_states:
+    filename = state
+    link = f"https://www.google.com/maps/search/{keywords}+{state}+United+States"
+    browser.get(str(link))
+    print("Chrome Browser Invoked")
+    time.sleep(10)
+    Selenium_extractor()
