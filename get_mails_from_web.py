@@ -23,7 +23,7 @@ def normalize_url(url):
 def get_mails_from_route(url):
     emails = []
     # Obtener el contenido de cada URL
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=120)
     content = response.content
 
     # Crear un objeto BeautifulSoup con el contenido y el parser html
@@ -68,7 +68,7 @@ def get_mails_from_web(web_url):
         print(f"Getting emails from website: {web_url}  ...")
         # Obtener el contenido de la página web
         headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(web_url, headers=headers)
+        response = requests.get(web_url, headers=headers, timeout=120)
         content = response.content
 
         # Crear un objeto BeautifulSoup con el contenido y el parser html
