@@ -40,11 +40,27 @@ def Selenium_extractor():
             #numero de intentos de obtener resultados para cada paginacion
             if len(a) == var:
                 le+=1
-                if le > 5:
+                if le > 3:
                     break
             else:
                 le = 0
-                
+        try:
+            #click in the map to close search recommendation
+            # Obtener el tamaño de la ventana
+            window_size = browser.get_window_size()
+
+            # Calcular la posición del click
+            x = window_size["width"] - 50
+            y = window_size["height"] // 2
+
+            # Mover el cursor y hacer click
+            action.move_by_offset(x, y)
+            action.click()
+            action.perform()
+            time.sleep(2)
+        except Exception as click_err:    
+            print(f"Error en el click para cerrar recomendaciones de busqueda: {click_err}") 
+              
         print("Scrapping info from each search results ...")
         for i in range(len(a)-1): #dejo el ultimo resultado de busqueda sin visitar para evitar dar click en el boton "go to top"
             try:
@@ -99,12 +115,8 @@ def Selenium_extractor():
         print(f"Error haciendo scroll: {err}")
         pass
         
-us_states = ["Alaska", "Arkansas", "California", "Carolina del Norte", 
-            "Carolina del Sur", "Colorado", "Dakota del Sur", "Florida", "Georgia", "Hawái", 
-            "Idaho", "Illinois", "Indiana", "Iowa", 
-            "Kansas", "Kentucky", "Luisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
-            "Minnesota", "Misisipi", "Misuri", "Montana", "Nebraska", "Nevada", "Nueva Jersey", 
-            "Nueva York", "Nuevo Hampshire", "Nuevo México", "Ohio", "Oklahoma", "Oregón", "Pensilvania", 
+us_states = ["Misisipi", "Montana", "Nebraska", "Nueva Jersey", 
+            "Nueva York", "Oklahoma", "Oregón", "Pensilvania", 
             "Rhode Island", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Virginia Occidental", 
             "Washington", "Wisconsin", "Wyoming"]
 
