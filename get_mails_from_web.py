@@ -56,7 +56,7 @@ def rebuild_routes(links, web_url):
             urls.append(web_url + str(link))
     return urls        
                                   
-def get_mails_from_web(web_url):
+def get_mails_from_web(web_url, callback_log_function):
     # Crear una lista vacía para guardar los emails
     emails = []
     no_more_mails_necesary = False
@@ -65,7 +65,7 @@ def get_mails_from_web(web_url):
     web_url = normalize_url(web_url)   
         
     try:
-        print(f"Getting emails from website: {web_url}  ...")
+        callback_log_function(f"Getting emails from website: {web_url}  ...")
         # Obtener el contenido de la página web
         headers = {"User-Agent": "Mozilla/5.0"}
         response = requests.get(web_url, headers=headers, timeout=120)
@@ -114,7 +114,7 @@ def get_mails_from_web(web_url):
                     except:
                         continue    
     except Exception as e:
-        print(f"Error al obtener las rutas de {web_url}: {e}")
+        callback_log_function(f"Error al obtener las rutas de {web_url}: {e}")
         pass
     
     # Eliminar los emails duplicados de la lista

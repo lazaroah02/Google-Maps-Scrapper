@@ -1,132 +1,159 @@
-from selenium import webdriver
-from bs4 import BeautifulSoup
+import threading
 import time
-import pandas as pd
-from selenium.webdriver.common.by import By
-from selenium.webdriver import ActionChains
-from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
-from selenium.webdriver.chrome.options import Options
-from get_mails_from_web import get_mails_from_web 
+from tkinter import *
+from utils import centrar_ventana
+from tkinter import messagebox, filedialog
+from tkinter import ttk
+from scrapping import main_scrapping
+from requests import RequestException
 
-options = Options()
-options.binary_location = "chrome-win64/chrome.exe"
-browser = webdriver.Chrome(options=options)
+class Main():
+    def __init__(self):
+        #creamos la ventana
+        self.root = Tk()
 
-def Selenium_extractor():
-    try:
-        record = []
-        e = []
-        le = 0 #esta variable contara el # de intentos de obtener resultados para cada pagination scroll que se haga
-        results_limit = 1000
-        action = ActionChains(browser)
-        #lista con los resultados de busqueda, los elementos con la clase "hfpxzc" son los links <a> que llevan al detalle de cada lugar
-        a = browser.find_elements(By.CLASS_NAME, "hfpxzc") 
-
-        print("Scrolling to capture search results ...")
-        #con este bucle se hacen las paginaciones simulando el scroll del usuario 
-        while len(a) < results_limit:
-            var = len(a)
-            #scroll hasta el ultimo resultado de busqueda
-            browser.execute_script ('''
-                                    document.querySelector('[role=\"feed\"]').scrollTo({
-                                        top:document.querySelector('[role=\"feed\"]').scrollHeight, 
-                                        left:0, 
-                                        behavior:'smooth'});
-                                    ''')
-            time.sleep(5)
-            #se guarda en la lista "a" todos los resultados de busqueda existentes antes del scroll y despues
-            a = browser.find_elements(By.CLASS_NAME, "hfpxzc")
-
-            #numero de intentos de obtener resultados para cada paginacion
-            if len(a) == var:
-                le+=1
-                if le > 3:
-                    break
-            else:
-                le = 0
-        try:
-            #click in the map to close search recommendation
-            # Obtener el tamaño de la ventana
-            window_size = browser.get_window_size()
-
-            # Calcular la posición del click
-            x = window_size["width"] - 50
-            y = window_size["height"] // 2
-
-            # Mover el cursor y hacer click
-            action.move_by_offset(x, y)
-            action.click()
-            action.perform()
-            time.sleep(2)
-        except Exception as click_err:    
-            print(f"Error en el click para cerrar recomendaciones de busqueda: {click_err}") 
-              
-        print("Scrapping info from each search results ...")
-        for i in range(len(a)-1): #dejo el ultimo resultado de busqueda sin visitar para evitar dar click en el boton "go to top"
-            try:
-                #recupero el elemento i de la lista de resultados como un objeto de scroll
-                scroll_origin = ScrollOrigin.from_element(a[i]) 
-                #hago scroll hasta el elemento 
-                action.scroll_from_origin(scroll_origin, 0, 1000).perform()
-                #muevo el mouse hasta el centro del elemento
-                action.move_to_element(a[i]).perform()
-                #hago click en el elemento
-                a[i].click()
-                time.sleep(2)
-                source = browser.page_source
-                soup = BeautifulSoup(source, 'html.parser')
-                #nombre del sitio
-                Name_Html = soup.findAll('h1', {"class": "DUwDvf lfPIob"})
-                name = Name_Html[0].text
-                if name not in e:
-                    #agrego el nombre del sitio 
-                    e.append(name)
-                    
-                    #extraigo los divs que contienen el resto de la info
-                    divs = soup.findAll('div', {"class": "Io6YTe fontBodyMedium kR99db"})
-                    #busco el telefono
-                    for j in range(len(divs)):
-                        if str(divs[j].text)[0] == "+" or str(divs[j].text)[0] == "(":
-                            phone = divs[j].text
-                    
-                    #address
-                    address=divs[0].text
-                    
-                    #busco el sitio web
-                    website = "Not available"
-                    try:
-                        for z in range(len(divs)):
-                            if str(divs[z].text)[-4] == "." or str(divs[z].text)[-3] == ".":
-                                website = divs[z].text
-                    except:
-                        website="Not available"
-                    
-                    #busco los mails del sitio web
-                    mails = tuple(get_mails_from_web(website))  
-                    
-                    print([name, phone, address, website, mails])
-                    record.append((name,phone,address,website,mails))
-                    df=pd.DataFrame(record,columns=['Name','Phone number','Address','Website', 'Emails'])  # writing data to the file
-                    df.to_csv(filepath+filename + '.csv',index=False,encoding='utf-8')
-            except Exception as error:
-                print(f"Error: {error}")
-                continue
-    except Exception as err:
-        print(f"Error haciendo scroll: {err}")
-        pass
+        #propiedades de la ventana
+        self.root.title("Hi") # titulo de la ventana
+        self.root.resizable(0,0) # permite modificar el alto y el ancho de la ventana si los valores son 1,1
+        self.root.geometry(centrar_ventana(500, 700, self.root)) # posicionamiento de la ventana (ancho X alto + pixeles a la derecha + pixeles hacia abajo)
         
-us_states = ["Misisipi", "Montana", "Nebraska", "Nueva Jersey", 
-            "Nueva York", "Oklahoma", "Oregón", "Pensilvania", 
-            "Rhode Island", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Virginia Occidental", 
-            "Washington", "Wisconsin", "Wyoming"]
+        #frame que contiene los elementos
+        self.frame = Frame() # se crea el frame
+        self.frame.pack(fill = "both", expand = "true")
+        self.frame.config(width = "500", height = "500") 
 
-filepath = "D:/Projects/Mail_Scrapping/data/vehicles/"
-keywords = "vehicles+construction,+repair,+and+assembly+companies+in"
+        #label del input keyword
+        self.label_keyword = Label(self.frame, text = "Keyword")
+        self.label_keyword.place(x = 10, y = 10 )   
+        
+        #input para las keywords
+        self.input_keyword = Entry(self.frame)
+        self.input_keyword.config(width = 50)
+        self.input_keyword.place(x = 100, y = 10)
+        
+        #label carpeta de destino
+        self.label_ruta_destino = Label(self.frame, text = "Ruta de destino")
+        self.label_ruta_destino.place(x = 10, y = 60 )   
+        
+        #input para la ruta de la carpeta de destino
+        self.input_ruta_destino = Entry(self.frame)
+        self.input_ruta_destino.config(width = 50)
+        self.input_ruta_destino.place(x = 100, y = 60)
+        
+        #boton para seleccionar la ruta de la carpeta de destino
+        self.button_select_ruta = Button(self.frame, text = "Seleccionar", command = self.seleccionar_ruta_destino)
+        self.button_select_ruta.place(x = 420, y = 55)
+        
+        #label country
+        self.label_country = Label(self.frame, text = "Country")
+        self.label_country.place(x = 10, y = 110 )   
+        
+        #input para el country
+        self.input_country = Entry(self.frame)
+        self.input_country.config(width = 50)
+        self.input_country.place(x = 100, y = 110)
+        
+        #label states
+        self.label_states = Label(self.frame, text = "States (Set the states one per line)")
+        self.label_states.place(x = 10, y = 150 )   
+        
+        #textarea states
+        self.text_area_states = Text(self.frame)
+        self.text_area_states.config(width = 60, height = 10)
+        self.text_area_states.place(x = 10, y = 170)
+        
+        #button para iniciar el scrapping 
+        self.button = Button(self.frame, text = "Iniciar Scrapping", command = self.prepare_scrapping)
+        self.button.config()
+        self.button.place(x = 10, y = 350)
+        
+        #label to show the loading status
+        self.label_loading = Label(self.frame, text = "Realizando Scrapping")
+        self.label_loading.config(fg = "blue", font = ("Cabin", 15,), width = 18)
+        
+        self.x_coordenate_of_loading_points = 330
+        self.after_function_id = None
+        self.loading_points = Label(self.frame, text = ". . .")
+        self.loading_points.config(fg = "blue", font = ("Courier", 15, "italic"))
+        
+        #show log textarea
+        self.text_area_log = Text(self.frame)
+        self.text_area_log.config(width = 60, height = 18)
+        self.text_area_log.place(x = 8, y = 400)
+                
+        self.root.mainloop()
+        
+    def seleccionar_ruta_destino(self):
+        self.input_ruta_destino.delete(0, "end")
+        path = str(filedialog.askdirectory())
+        self.input_ruta_destino.insert(0, path)
+        
+    def prepare_scrapping(self):
+        keyword = self.input_keyword.get().replace(" ", "+")
+        ruta_destino = self.input_ruta_destino.get()
+        country = self.input_country.get().replace(" ", "+")
+        states = self.text_area_states.get("1.0", END).split("\n")
 
-for state in us_states:
-    filename = state
-    link = f"https://www.google.com/maps/search/{keywords}+{state}+United+States"
-    browser.get(str(link))
-    print("Chrome Browser Invoked")
-    time.sleep(10)
-    Selenium_extractor()
+        #check that any field is empty
+        if keyword == "" or ruta_destino == "" or country == "" or states == []:
+            messagebox.showinfo("!","No pueden haber campos vacios")
+        else:
+            t = threading.Thread(target = self.start_scrapping, args = [keyword, ruta_destino, states, country])
+            t.start()   
+              
+    def start_scrapping(self, keyword, ruta_destino, states, country):
+        self.disable_buttons()
+        self.show_loading_status()
+        states_cont = 1
+        for state in states:
+            self.callback_log_function(f"Starting scrapping for: {state} {self.input_country.get()}. Searching for: {self.input_keyword.get()}")
+            try:
+                main_scrapping(
+                    index = states_cont,
+                    file_path=ruta_destino, 
+                    keywords=keyword, 
+                    state = state, 
+                    callback_log_function=self.callback_log_function, 
+                    country = country, 
+                    scrapping_successfull = self.remove_state_from_scrapping_list
+                    )
+            except Exception:
+                self.callback_log_function(f"Herror en el scrapping for: {state} {self.input_country.get()}. Searching for: {self.input_keyword.get()}") 
+                continue  
+            finally:
+                states_cont += 1 
+                
+        messagebox.showinfo("!","Operacion finalizada")
+        self.enable_buttons()
+              
+    def enable_buttons(self):
+        self.button.config(state = "normal")
+        self.button_select_ruta.config(state = "normal")
+        
+    def disable_buttons(self):
+        self.button.config(state = "disabled")
+        self.button_select_ruta.config(state = "disabled")
+    
+    # Define a function to animate the GIF
+    def show_loading_status(self, frame = 0):
+        if self.loading_points.winfo_x() >= 350:
+            self.loading_points.place(x = self.x_coordenate_of_loading_points)
+            frame = 0
+        # Update the position of the loading point
+        self.label_loading.place(x = 130, y = 345)     
+        self.loading_points.place(x = (self.x_coordenate_of_loading_points + frame), y = 346)
+        # Schedule the next frame to be displayed after 250 milliseconds
+        self.after_function_id = self.root.after(250, self.show_loading_status, frame + 5)
+    
+    def hide_loading_status(self):
+        self.root.after_cancel(self.after_function_id)
+        self.label_loading.place_forget()    
+        self.loading_points.place_forget()   
+
+    def callback_log_function(self, log):
+        self.text_area_log.insert(END, f"•{log}\n \n")
+
+    def remove_state_from_scrapping_list(self, state_index):
+        self.text_area_states.delete(f'{state_index}.0',f'{state_index}.end+1c')
+    
+Main()        
