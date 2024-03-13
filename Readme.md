@@ -12,5 +12,3 @@ https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/win64
 ```
 python main.py
 ```
-
-Note: If you consider necessary, modify the variables at the start of the main.py file

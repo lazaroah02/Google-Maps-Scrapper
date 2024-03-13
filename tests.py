@@ -10,9 +10,12 @@ results_expected = {
 
 class TestGetMailsFromWeb(unittest.TestCase):
     
+    def callback(self, arg):
+        pass
+    
     def test_get_mails_from_web_results_expected(self):
         for key, value in results_expected.items():
-            self.assertEqual(get_mails_from_web(key), value)
+            self.assertEqual(get_mails_from_web(key, callback_log_function = self.callback), value)
 
 if __name__ == '__main__':
     unittest.main()            
