@@ -124,6 +124,7 @@ class Main():
                 states_cont += 1 
                 
         messagebox.showinfo("!","Operacion finalizada")
+        self.hide_loading_status()
         self.enable_buttons()
               
     def enable_buttons(self):

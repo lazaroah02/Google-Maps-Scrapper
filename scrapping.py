@@ -120,7 +120,6 @@ def main_scrapping( index, state, file_path, keywords, callback_log_function, sc
     filename = state
     link = f"https://www.google.com/maps/search/{keywords}+{state}+{country}"
     browser.get(str(link))
-    callback_log_function("Chrome Browser Invoked")
     time.sleep(10)
     Selenium_extractor(
         index = index, 
