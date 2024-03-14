@@ -44,22 +44,19 @@ def Selenium_extractor(callback_log_function, scrapping_successfull, update_stat
                     break
             else:
                 le = 0
+        
+        #close search recommendation
         try:
-            #click in the map to close search recommendation
-            # Obtener el tamaño de la ventana
-            window_size = browser.get_window_size()
-
-            # Calcular la posición del click
-            x = window_size["width"] - 50
-            y = window_size["height"] // 2
+            # get raiting button
+            rating_button = browser.find_elements(By.CLASS_NAME, "uEubGf")[0]
 
             # Mover el cursor y hacer click
-            action.move_by_offset(x, y)
-            action.click()
+            action.move_to_element(rating_button)
+            action.click(rating_button)
             action.perform()
             time.sleep(2)
         except Exception as click_err:   
-            callback_log_function(f"Error en el click para cerrar recomendaciones de busqueda") 
+            callback_log_function(f"Error en el click para cerrar recomendaciones de busqueda: {click_err}") 
               
         callback_log_function("Scrapping info from each search results ...")
         for element in a:
