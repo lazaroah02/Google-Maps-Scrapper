@@ -97,6 +97,9 @@ class Main():
     def prepare_scrapping(self):
         keyword = self.input_keyword.get().replace(" ", "+")
         ruta_destino = self.input_ruta_destino.get()
+        #check if the folder path ends with "/", in case that not, added it
+        if ruta_destino.endswith("/") == False:
+            ruta_destino += '/'
         country = self.input_country.get().replace(" ", "+")
         states = self.text_area_states.get("1.0", END).split("\n")
         if states[-1] == '':
