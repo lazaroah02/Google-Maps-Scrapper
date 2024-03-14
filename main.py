@@ -1,11 +1,9 @@
+import os
 import threading
-import time
 from tkinter import *
 from utils import centrar_ventana
 from tkinter import messagebox, filedialog
-from tkinter import ttk
 from scrapping import main_scrapping
-from requests import RequestException
 
 class Main():
     def __init__(self):
@@ -58,7 +56,12 @@ class Main():
         
         #label states
         self.label_states = Label(self.frame, text = "States (Set the states one per line)")
-        self.label_states.place(x = 10, y = 150 )   
+        self.label_states.place(x = 10, y = 145 )   
+        
+        #button to load United States states 
+        self.button = Button(self.frame, text = "Load States", command = self.load_us_states)
+        self.button.config()
+        self.button.place(x = 200, y = 140)
         
         #textarea states
         self.text_area_states = Text(self.frame)
@@ -109,7 +112,7 @@ class Main():
     def start_scrapping(self, keyword, ruta_destino, states, country):
         self.disable_buttons()
         self.show_loading_status()
-        
+
         for state in states:
             self.callback_log_function(f"Starting scrapping for: {state} {self.input_country.get()}. Searching for: {self.input_keyword.get()}")
             try:
@@ -169,5 +172,21 @@ class Main():
         This to keep that state in the states textarea in case the user want to re-scrapping the states that fails
         '''
         self.state_index += 1
+    
+    def load_us_states(self):
+        '''Load automatically us states and insert into states textarea'''
+        self.text_area_states.delete("1.0", END)  
+        try:
+            absolute_folder_path = os.path.dirname(os.path.realpath(__file__))
+            file_path = os.path.join(absolute_folder_path, './us_states.txt')
+            file = open(file_path, encoding="utf-8")
+            states = file.readlines()
+            file.close()
+            cont = 1
+            for state in states:
+                self.text_area_states.insert(f"{cont}.0", state)
+                cont += 1
+        except:
+            messagebox.showinfo("!","Error al cargar los estados de Estados Unidos. Ingreselos manualmente")    
         
 Main()        
