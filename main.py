@@ -14,7 +14,7 @@ class Main():
         self.root = Tk()
 
         #propiedades de la ventana
-        self.root.title("Goole Maps Mail Scrapper") # titulo de la ventana
+        self.root.title("Goole Maps Scrapper") # titulo de la ventana
         self.root.resizable(0,0) # permite modificar el alto y el ancho de la ventana si los valores son 1,1
         self.root.geometry(centrar_ventana(500, 700, self.root)) # posicionamiento de la ventana (ancho X alto + pixeles a la derecha + pixeles hacia abajo)
         
