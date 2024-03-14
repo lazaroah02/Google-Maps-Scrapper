@@ -9,6 +9,10 @@ from requests import RequestException
 
 class Main():
     def __init__(self):
+        #global variable to store the number of states already scrapped from a country. 
+        #This to delete the finished states from the states textarea
+        self.state_index = 1
+        
         #creamos la ventana
         self.root = Tk()
 
@@ -93,6 +97,8 @@ class Main():
         ruta_destino = self.input_ruta_destino.get()
         country = self.input_country.get().replace(" ", "+")
         states = self.text_area_states.get("1.0", END).split("\n")
+        if states[-1] == '':
+            states.remove('')
 
         #check that any field is empty
         if keyword == "" or ruta_destino == "" or country == "" or states == []:
@@ -104,24 +110,24 @@ class Main():
     def start_scrapping(self, keyword, ruta_destino, states, country):
         self.disable_buttons()
         self.show_loading_status()
-        states_cont = 1
+        
         for state in states:
             self.callback_log_function(f"Starting scrapping for: {state} {self.input_country.get()}. Searching for: {self.input_keyword.get()}")
             try:
                 main_scrapping(
-                    index = states_cont,
                     file_path=ruta_destino, 
                     keywords=keyword, 
                     state = state, 
                     callback_log_function=self.callback_log_function, 
                     country = country, 
-                    scrapping_successfull = self.remove_state_from_scrapping_list
+                    scrapping_successfull = self.remove_state_from_scrapping_list,
+                    update_state_index = self.update_state_index
                     )
+                self.remove_state_from_scrapping_list()
+                time.sleep(1)
             except Exception:
                 self.callback_log_function(f"Herror en el scrapping for: {state} {self.input_country.get()}. Searching for: {self.input_keyword.get()}") 
                 continue  
-            finally:
-                states_cont += 1 
                 
         messagebox.showinfo("!","Operacion finalizada")
         self.hide_loading_status()
@@ -153,8 +159,12 @@ class Main():
 
     def callback_log_function(self, log):
         self.text_area_log.insert(END, f"•{log}\n \n")
+        self.text_area_log.see("end")
 
-    def remove_state_from_scrapping_list(self, state_index):
-        self.text_area_states.delete(f'{state_index}.0',f'{state_index}.end+1c')
+    def remove_state_from_scrapping_list(self):
+        self.text_area_states.delete(f'{self.state_index}.0',f'{self.state_index}.end+1c')
     
+    def update_state_index(self):
+        self.state_index += 1
+        
 Main()        

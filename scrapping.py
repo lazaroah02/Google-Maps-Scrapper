@@ -12,7 +12,7 @@ options = Options()
 options.binary_location = "chrome-win64/chrome.exe"
 browser = webdriver.Chrome(options=options)
 
-def Selenium_extractor(index, callback_log_function, scrapping_successfull, filename = "", file_path = ""):
+def Selenium_extractor(callback_log_function, scrapping_successfull, update_state_index, filename = "", file_path = ""):
     try:
         record = []
         e = []
@@ -59,7 +59,7 @@ def Selenium_extractor(index, callback_log_function, scrapping_successfull, file
             action.perform()
             time.sleep(2)
         except Exception as click_err:   
-            callback_log_function(f"Error en el click para cerrar recomendaciones de busqueda: {click_err}") 
+            callback_log_function(f"Error en el click para cerrar recomendaciones de busqueda") 
               
         callback_log_function("Scrapping info from each search results ...")
         for element in a:
@@ -102,29 +102,33 @@ def Selenium_extractor(index, callback_log_function, scrapping_successfull, file
                         website="Not available"
                     
                     #busco los mails del sitio web
-                    mails = tuple(get_mails_from_web(website, callback_log_function=callback_log_function))  
+                    if website != "Not available":
+                        mails = tuple(get_mails_from_web(website, callback_log_function=callback_log_function))
+                    else:
+                        mails = ()      
                     
                     callback_log_function([name, phone, address, website, mails])
                     record.append((name,phone,address,website,mails))
                     df=pd.DataFrame(record,columns=['Name','Phone number','Address','Website', 'Emails'])  # writing data to the file
                     df.to_csv(file_path+filename + '.csv',index=False,encoding='utf-8')
-                    scrapping_successfull(index)
             except Exception as error:
                 callback_log_function(f"Error: {error}")
                 continue
+        scrapping_successfull()    
     except Exception as err:
         callback_log_function(f"Error haciendo scroll: {err}")
+        update_state_index()
         pass
 
-def main_scrapping( index, state, file_path, keywords, callback_log_function, scrapping_successfull, country = "United+States"):    
+def main_scrapping( state, file_path, keywords, callback_log_function, scrapping_successfull, update_state_index, country = "United+States"):    
     filename = state
     link = f"https://www.google.com/maps/search/{keywords}+{state}+{country}"
     browser.get(str(link))
     time.sleep(10)
     Selenium_extractor(
-        index = index, 
         filename = filename, 
         file_path = file_path, 
         callback_log_function = callback_log_function, 
-        scrapping_successfull = scrapping_successfull
+        scrapping_successfull = scrapping_successfull,
+        update_state_index = update_state_index
         )
