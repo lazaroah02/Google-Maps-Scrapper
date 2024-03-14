@@ -9,8 +9,7 @@ from requests import RequestException
 
 class Main():
     def __init__(self):
-        #global variable to store the number of states already scrapped from a country. 
-        #This to delete the finished states from the states textarea
+        #variable that follow the reference of the states to delete the scrapped states from the states textarea 
         self.state_index = 1
         
         #creamos la ventana
@@ -123,8 +122,6 @@ class Main():
                     scrapping_successfull = self.remove_state_from_scrapping_list,
                     update_state_index = self.update_state_index
                     )
-                self.remove_state_from_scrapping_list()
-                time.sleep(1)
             except Exception:
                 self.callback_log_function(f"Herror en el scrapping for: {state} {self.input_country.get()}. Searching for: {self.input_keyword.get()}") 
                 continue  
@@ -158,13 +155,19 @@ class Main():
         self.loading_points.place_forget()   
 
     def callback_log_function(self, log):
+        '''function to show a log in the log textarea'''
         self.text_area_log.insert(END, f"•{log}\n \n")
         self.text_area_log.see("end")
 
     def remove_state_from_scrapping_list(self):
+        '''Remove a state from the textarea states when the scrapping for that state was ok.'''
         self.text_area_states.delete(f'{self.state_index}.0',f'{self.state_index}.end+1c')
     
     def update_state_index(self):
+        '''
+        Increase the state_index value in 1 when a state scrapping goes bad. 
+        This to keep that state in the states textarea in case the user want to re-scrapping the states that fails
+        '''
         self.state_index += 1
         
 Main()        
