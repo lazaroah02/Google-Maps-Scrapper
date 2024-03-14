@@ -18,6 +18,11 @@ class Main():
         self.root.resizable(0,0) # permite modificar el alto y el ancho de la ventana si los valores son 1,1
         self.root.geometry(centrar_ventana(500, 700, self.root)) # posicionamiento de la ventana (ancho X alto + pixeles a la derecha + pixeles hacia abajo)
         
+        self.absolute_folder_path = os.path.dirname(os.path.realpath(__file__))
+        self.icon_path = os.path.join(self.absolute_folder_path, './logo.png')
+        self.icon = PhotoImage(file = self.icon_path)
+        self.root.iconphoto(True, self.icon)
+        
         #frame que contiene los elementos
         self.frame = Frame() # se crea el frame
         self.frame.pack(fill = "both", expand = "true")
