@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from numba import njit
+from utils import normalize_email, verify_email
 
 files_extensions = [".css", ".js", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".mp4", ".mp3", ".pdf"]
 headers = {"User-Agent": "Mozilla/5.0"}
@@ -120,4 +121,11 @@ def get_mails_from_web(web_url, callback_log_function):
     # Eliminar los emails duplicados de la lista
     emails = list(dict.fromkeys(emails))
     
-    return emails
+    emails_to_return = []
+    #validate and normalize the emails
+    for email in emails:
+        email = normalize_email(email)
+        if(verify_email(email)):
+            emails_to_return.append(email)
+    
+    return emails_to_return
