@@ -128,4 +128,4 @@ def get_mails_from_web(web_url, callback_log_function):
         if(verify_email(email)):
             emails_to_return.append(email)
     
-    return emails_to_return
+    return list(set(emails_to_return))
