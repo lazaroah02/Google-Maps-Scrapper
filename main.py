@@ -64,8 +64,8 @@ class Main():
         self.label_states = Label(self.frame, text = "States (Set the states one per line)")
         self.label_states.place(x = 10, y = 145 )   
         
-        #button to load United States states 
-        self.button = Button(self.frame, text = "Load States", command = self.load_us_states)
+        #button to load states 
+        self.button = Button(self.frame, text = "Load States", command = self.load_states)
         self.button.config()
         self.button.place(x = 200, y = 140)
         
@@ -182,12 +182,11 @@ class Main():
         '''
         self.state_index += 1
     
-    def load_us_states(self):
-        '''Load automatically us states and insert into states textarea'''
+    def load_states(self):
+        '''Load automatically states and insert into states textarea'''
         self.text_area_states.delete("1.0", END)  
         try:
-            absolute_folder_path = os.path.dirname(os.path.realpath(__file__))
-            file_path = os.path.join(absolute_folder_path, './us_states.txt')
+            file_path = filedialog.askopenfilename(parent = self.frame, title='Selecciona un archivo con los estados', filetypes=[("TXT file","*.txt")])
             file = open(file_path, encoding="utf-8")
             states = file.readlines()
             file.close()
@@ -196,6 +195,6 @@ class Main():
                 self.text_area_states.insert(f"{cont}.0", state)
                 cont += 1
         except:
-            messagebox.showinfo("!","Error al cargar los estados de Estados Unidos. Ingreselos manualmente")    
+            messagebox.showinfo("!","Error al cargar los estados. Ingreselos manualmente")    
         
 Main()        
